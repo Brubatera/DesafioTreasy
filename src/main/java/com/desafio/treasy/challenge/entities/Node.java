@@ -33,4 +33,11 @@ public class Node {
     private String detail;
 
     private Boolean hasBabies;
+
+    public Node(Long parentId, String code, String description, String detail) {
+        this.code = code;
+        this.description = description;
+        this.detail = detail;
+        this.parentId = parentId;
+    }
 }
