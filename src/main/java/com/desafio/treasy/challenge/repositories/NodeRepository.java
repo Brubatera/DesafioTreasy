@@ -10,4 +10,6 @@ import java.util.List;
 public interface NodeRepository extends JpaRepository<Node, Long> {
 
     List<Node> findAllByParentId(Long parentId);
+
+    List<Node> findAllByParentIdIsNull();
 }

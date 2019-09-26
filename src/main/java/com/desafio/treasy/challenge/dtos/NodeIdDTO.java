@@ -1,11 +1,12 @@
 package com.desafio.treasy.challenge.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
+@AllArgsConstructor
 @Data
-public class EditableDTO extends NodeDTO {
+public class NodeIdDTO {
 
     private Long id;
 }

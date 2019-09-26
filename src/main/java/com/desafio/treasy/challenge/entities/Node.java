@@ -3,10 +3,12 @@ package com.desafio.treasy.challenge.entities;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Data
@@ -18,7 +20,11 @@ public class Node {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long parentId;
+//    @ManyToOne
+//    @Nullable
+//    private Node parent;
+
+    public Long parentId;
 
     @OneToMany
     private List<Node> babies;

@@ -1,14 +1,12 @@
 package com.desafio.treasy.challenge.services;
 
-import com.desafio.treasy.challenge.dtos.EditableDTO;
+import com.desafio.treasy.challenge.dtos.NodeDTO;
+import com.desafio.treasy.challenge.dtos.NodeIdDTO;
 import com.desafio.treasy.challenge.entities.Node;
 import com.desafio.treasy.challenge.repositories.NodeRepository;
-import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,52 +15,83 @@ public class NodeService {
 
     private NodeRepository nodeRepository;
 
-    public Long save(Node node) throws ChangeSetPersister.NotFoundException {
-        if (node.getParentId() != null) {
-            return setBabyIntoParent(node);
-        }
-        return nodeRepository.save(node).getId();
-    }
-
-    public List<Node> findAll() {
-        return nodeRepository.findAll();
+    public List<Node> findAllAndParentIdIsNull() {
+        return nodeRepository.findAllByParentIdIsNull();
     }
 
     public List<Node> findAllByParentId(Long parentId) {
         return nodeRepository.findAllByParentId(parentId);
     }
 
-    public Long update(EditableDTO editableDTO) throws Exception {
-        Node node = nodeRepository.findById(editableDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+    public NodeIdDTO save(Node nodeToSave, NodeDTO nodeDTO) {
+        Node node = new Node();
 
-        if (!node.getId().equals(editableDTO.getParentId())) {
-            node.setParentId(editableDTO.getParentId());
-            setBabyIntoParent(editableDTO, node);
+        node.setDetail(nodeToSave.getDetail());
+        node.setDescription(nodeToSave.getDescription());
+        node.setCode(nodeToSave.getCode());
+
+        if (nodeDTO.getParentId() != null) {
+            Node parent = nodeRepository.findById(nodeDTO.getParentId()).orElse(null);
+            Long responseId;
+
+            if (parent != null) {
+                parent.getBabies().add(node);
+                parent.setHasBabies(hasBaby(parent));
+                node.setParentId(nodeToSave.getParentId());
+                node.setHasBabies(hasBaby(node));
+                responseId = nodeRepository.save(node).getId();
+                nodeRepository.save(parent);
+
+                return new NodeIdDTO(responseId);
+            }
         }
-        node.setCode(editableDTO.getCode());
-        node.setDescription(editableDTO.getDescription());
-        node.setDetail(editableDTO.getDetail());
-
-        return nodeRepository.save(node).getId();
+        node.setHasBabies(false);
+        return new NodeIdDTO(nodeRepository.save(node).getId());
     }
 
-    private void setBabyIntoParent(EditableDTO editableDTO, Node node) {
-        Node parent;
-        List<Node> babies = new ArrayList<>();
+    public NodeIdDTO update(Long id, NodeDTO nodeDTO) {
+        Node nodeToUpdate = nodeRepository.findById(id).orElse(null);
+        Long responseId;
 
-        if (editableDTO.getParentId() != null) {
-            parent = nodeRepository.findById(editableDTO.getParentId()).orElse(null);
-            babies.add(node);
-            parent.setBabies(babies);
+        if (nodeToUpdate != null && nodeDTO.getParentId() != null) {
+
+            removeBabyFromExParent(nodeToUpdate);
+
+            nodeToUpdate.setCode(nodeDTO.getCode());
+            nodeToUpdate.setDescription(nodeDTO.getDescription());
+            nodeToUpdate.setDetail(nodeDTO.getDetail());
+            responseId = nodeRepository.save(nodeToUpdate).getId();
+
+            updateNewParent(nodeDTO, nodeToUpdate);
+            return new NodeIdDTO(responseId);
         }
+        return null;
     }
 
-    private Long setBabyIntoParent(Node node) throws ChangeSetPersister.NotFoundException {
-        List<Node> babies = new ArrayList<>();
-        Node parent = nodeRepository.findById(node.getParentId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+    private void updateNewParent(NodeDTO nodeDTO, Node nodeToUpdate) {
+        if (!isSameParent(nodeToUpdate))
+            nodeRepository.findById(nodeDTO.getParentId()).ifPresent(parent -> {
+                parent.getBabies().add(nodeToUpdate);
+                parent.setHasBabies(hasBaby(parent));
+                nodeToUpdate.setParentId(nodeDTO.getParentId());
+                nodeRepository.save(nodeToUpdate);
+                nodeRepository.save(parent);
+            });
+    }
 
-        babies.add(node);
-        parent.setBabies((babies));
-        return nodeRepository.save(node).getId();
+    private void removeBabyFromExParent(Node nodeToUpdate) {
+        if (!isSameParent(nodeToUpdate))
+            nodeRepository.findById(nodeToUpdate.getParentId()).ifPresent(oldparent -> {
+                oldparent.getBabies().remove(nodeToUpdate);
+                nodeRepository.save(oldparent);
+            });
+    }
+
+    private boolean isSameParent(Node nodeToUpdate) {
+        return nodeToUpdate.getBabies().stream().anyMatch(node -> node.getParentId().equals(nodeToUpdate.getId()));
+    }
+
+    private boolean hasBaby(Node parent) {
+        return parent.getBabies() != null;
     }
 }

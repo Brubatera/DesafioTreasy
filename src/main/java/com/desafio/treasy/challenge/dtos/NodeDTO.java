@@ -13,7 +13,7 @@ public class NodeDTO {
     private String description;
     private String detail;
 
-    public Node convertNodeDtoToNode() {
+    public Node convertDTOtoNode() {
         return new Node(parentId, code, description, detail);
     }
 }
