@@ -1,11 +1,13 @@
 package com.desafio.treasy.challenge.controllers;
 
+import com.desafio.treasy.challenge.Exceptions.FatherCantBecomeSonOfHimself;
+import com.desafio.treasy.challenge.Exceptions.IdNotFoundException;
+import com.desafio.treasy.challenge.Exceptions.ParentIdNotFoundException;
 import com.desafio.treasy.challenge.dtos.NodeDTO;
 import com.desafio.treasy.challenge.dtos.NodeIdDTO;
 import com.desafio.treasy.challenge.entities.Node;
 import com.desafio.treasy.challenge.services.NodeService;
 import lombok.AllArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,17 +25,17 @@ public class NodeController {
     }
 
     @GetMapping("/{parentId}")
-    public List<Node> findAllByParentId(@PathVariable Long parentId) {
+    public List<Node> findAllByParentId(@PathVariable Long parentId) throws ParentIdNotFoundException {
         return nodeService.findAllByParentId(parentId);
     }
 
     @PostMapping
-    public NodeIdDTO save(@RequestBody NodeDTO nodeDTO) throws ChangeSetPersister.NotFoundException {
+    public NodeIdDTO save(@RequestBody NodeDTO nodeDTO) throws ParentIdNotFoundException {
         return nodeService.save(nodeDTO.convertDTOtoNode(), nodeDTO);
     }
 
     @PutMapping("/{id}")
-    public NodeIdDTO updateNode(@PathVariable(value = "id") Long id, @RequestBody NodeDTO nodeDTO) throws Exception {
+    public NodeIdDTO updateNode(@PathVariable(value = "id") Long id, @RequestBody NodeDTO nodeDTO) throws FatherCantBecomeSonOfHimself, IdNotFoundException {
         return nodeService.update(id, nodeDTO);
     }
 }

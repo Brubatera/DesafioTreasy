@@ -1,11 +1,13 @@
 package com.desafio.treasy.challenge.dtos;
 
 import com.desafio.treasy.challenge.entities.Node;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
 @NoArgsConstructor
-@Data
 public class NodeDTO {
 
     private Long parentId;

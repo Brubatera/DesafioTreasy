@@ -1,17 +1,17 @@
 package com.desafio.treasy.challenge.entities;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Optional;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Node {
@@ -19,10 +19,6 @@ public class Node {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-//    @ManyToOne
-//    @Nullable
-//    private Node parent;
 
     public Long parentId;
 
@@ -45,5 +41,13 @@ public class Node {
         this.description = description;
         this.detail = detail;
         this.parentId = parentId;
+    }
+
+    public Node(Long parentId, String code, String description, String detail, List<Node> babies) {
+        this.code = code;
+        this.description = description;
+        this.detail = detail;
+        this.parentId = parentId;
+        this.babies = babies;
     }
 }
