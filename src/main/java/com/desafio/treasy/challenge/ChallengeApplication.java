@@ -15,12 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 @EnableJpaAuditing
-public class ChallengeApplication extends SpringBootServletInitializer {
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(ChallengeApplication.class);
-    }
+public class ChallengeApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ChallengeApplication.class, args);
