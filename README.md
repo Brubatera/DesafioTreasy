@@ -1,6 +1,6 @@
 # DesafioTreasy
 
-Para acessar a API via num, basta abrir este link: https://desafio-treasy-tree-bruno.herokuapp.com/swagger-ui.html#/
+Para acessar a API via nuvem, basta abrir este link: https://desafio-treasy-tree-bruno.herokuapp.com/swagger-ui.html#/
 Cada método espera inserção dos dados em formato Json.
 
 # Banco de dados
