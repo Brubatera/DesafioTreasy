@@ -1,8 +1,8 @@
 package com.desafio.treasy.challenge.controllers;
 
-import com.desafio.treasy.challenge.Exceptions.FatherCantBecomeSonOfHimself;
-import com.desafio.treasy.challenge.Exceptions.IdNotFoundException;
-import com.desafio.treasy.challenge.Exceptions.ParentIdNotFoundException;
+import com.desafio.treasy.challenge.exceptions.FatherCantBecomeSonOfHimself;
+import com.desafio.treasy.challenge.exceptions.IdNotFoundException;
+import com.desafio.treasy.challenge.exceptions.ParentIdNotFoundException;
 import com.desafio.treasy.challenge.dtos.NodeDTO;
 import com.desafio.treasy.challenge.dtos.NodeIdDTO;
 import com.desafio.treasy.challenge.entities.Node;

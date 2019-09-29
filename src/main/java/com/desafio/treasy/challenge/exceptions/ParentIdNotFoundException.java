@@ -1,4 +1,4 @@
-package com.desafio.treasy.challenge.Exceptions;
+package com.desafio.treasy.challenge.exceptions;
 
 public class ParentIdNotFoundException extends RuntimeException {
     public String getMessage() {
