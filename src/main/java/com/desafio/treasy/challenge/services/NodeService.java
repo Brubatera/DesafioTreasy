@@ -1,16 +1,18 @@
 package com.desafio.treasy.challenge.services;
 
-import com.desafio.treasy.challenge.exceptions.FatherCantBecomeSonOfHimself;
-import com.desafio.treasy.challenge.exceptions.IdNotFoundException;
-import com.desafio.treasy.challenge.exceptions.ParentIdNotFoundException;
+import com.desafio.treasy.challenge.dtos.GetNodeDTO;
 import com.desafio.treasy.challenge.dtos.NodeDTO;
 import com.desafio.treasy.challenge.dtos.NodeIdDTO;
 import com.desafio.treasy.challenge.entities.Node;
+import com.desafio.treasy.challenge.exceptions.FatherCantBecomeSonOfHimself;
+import com.desafio.treasy.challenge.exceptions.IdNotFoundException;
+import com.desafio.treasy.challenge.exceptions.ParentIdNotFoundException;
 import com.desafio.treasy.challenge.repositories.NodeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -18,8 +20,10 @@ public class NodeService {
 
     private NodeRepository nodeRepository;
 
-    public List<Node> findAllAndParentIdIsNull() {
-        return nodeRepository.findAllByParentIdIsNull();
+    public List<GetNodeDTO> findAllAndParentIdIsNull() {
+        List<Node> listNode = nodeRepository.findAllByParentIdIsNull();
+        return listNode.stream().map(Node::convertNodeToDTO).collect(Collectors.toList());
+
     }
 
     public List<Node> findAllByParentId(Long parentId) throws ParentIdNotFoundException {

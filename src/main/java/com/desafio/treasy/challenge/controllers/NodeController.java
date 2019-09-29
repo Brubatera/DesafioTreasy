@@ -1,5 +1,6 @@
 package com.desafio.treasy.challenge.controllers;
 
+import com.desafio.treasy.challenge.dtos.GetNodeDTO;
 import com.desafio.treasy.challenge.exceptions.FatherCantBecomeSonOfHimself;
 import com.desafio.treasy.challenge.exceptions.IdNotFoundException;
 import com.desafio.treasy.challenge.exceptions.ParentIdNotFoundException;
@@ -20,7 +21,7 @@ public class NodeController {
     private NodeService nodeService;
 
     @GetMapping
-    public List<Node> findAllAndParentIdIsNull() {
+    public List<GetNodeDTO> findAllAndParentIdIsNull() {
         return nodeService.findAllAndParentIdIsNull();
     }
 
