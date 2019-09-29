@@ -13,4 +13,5 @@ public interface NodeRepository extends JpaRepository<Node, Long> {
     Optional<List<Node>> findAllByParentId(Long parentId);
 
     List<Node> findAllByParentIdIsNull();
+
 }

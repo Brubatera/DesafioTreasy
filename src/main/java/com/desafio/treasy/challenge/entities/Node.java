@@ -1,5 +1,6 @@
 package com.desafio.treasy.challenge.entities;
 
+import com.desafio.treasy.challenge.dtos.ChildrenDTO;
 import com.desafio.treasy.challenge.dtos.GetNodeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,5 +47,9 @@ public class Node {
 
     public GetNodeDTO convertNodeToDTO() {
         return new GetNodeDTO(id, parentId, code, description, detail, children);
+    }
+
+    public ChildrenDTO convertNodeChildToDTO() {
+        return new ChildrenDTO(id, code, description, parentId, detail, hasChildren);
     }
 }

@@ -1,5 +1,6 @@
 package com.desafio.treasy.challenge.services;
 
+import com.desafio.treasy.challenge.dtos.ChildrenDTO;
 import com.desafio.treasy.challenge.dtos.GetNodeDTO;
 import com.desafio.treasy.challenge.dtos.NodeDTO;
 import com.desafio.treasy.challenge.dtos.NodeIdDTO;
@@ -26,8 +27,9 @@ public class NodeService {
 
     }
 
-    public List<Node> findAllByParentId(Long parentId) throws ParentIdNotFoundException {
-        return nodeRepository.findAllByParentId(parentId).orElseThrow(ParentIdNotFoundException::new);
+    public List<ChildrenDTO> findAllByParentId(Long parentId) throws ParentIdNotFoundException {
+        List<Node> listNode = nodeRepository.findAllByParentId(parentId).orElseThrow(ParentIdNotFoundException::new);
+        return listNode.stream().map(Node::convertNodeChildToDTO).collect(Collectors.toList());
     }
 
     public NodeIdDTO save(Node nodeToSave, NodeDTO nodeDTO) {
@@ -69,7 +71,27 @@ public class NodeService {
 
             return new NodeIdDTO(responseId);
         }
-        return null;
+
+        nodeToUpdate.setCode(nodeDTO.getCode());
+        nodeToUpdate.setDescription(nodeDTO.getDescription());
+        nodeToUpdate.setDetail(nodeDTO.getDetail());
+        responseId = nodeRepository.save(nodeToUpdate).getId();
+
+        return new NodeIdDTO(responseId);
+    }
+
+    public NodeIdDTO delete(Long id) throws IdNotFoundException {
+        Node nodeToDelete = nodeRepository.findById(id).orElseThrow(IdNotFoundException::new);
+        List<Node> children = nodeRepository.findAllByParentId(id).orElseThrow(ParentIdNotFoundException::new);
+
+        if (hasChildren(nodeToDelete)) {
+            nodeToDelete.getChildren().removeAll(children);
+            nodeRepository.save(nodeToDelete);
+        }
+        children.forEach(child -> nodeRepository.delete(child));
+        nodeRepository.delete(nodeToDelete);
+
+        return new NodeIdDTO(id);
     }
 
     private void updateNewParent(NodeDTO nodeDTO, Node nodeToUpdate) throws FatherCantBecomeSonOfHimself {
@@ -85,10 +107,7 @@ public class NodeService {
         });
     }
 
-    private void removeChildrenFromExParent(Node nodeToUpdate) throws FatherCantBecomeSonOfHimself {
-        if (isSameParent(nodeToUpdate)) {
-            throw new FatherCantBecomeSonOfHimself("Father can't become son of himself");
-        }
+    private void removeChildrenFromExParent(Node nodeToUpdate) {
         nodeRepository.findById(nodeToUpdate.getParentId()).ifPresent(oldparent -> {
             oldparent.getChildren().remove(nodeToUpdate);
             nodeRepository.save(oldparent);
@@ -102,4 +121,5 @@ public class NodeService {
     private boolean hasChildren(Node node) {
         return node.getChildren() != null;
     }
+
 }
