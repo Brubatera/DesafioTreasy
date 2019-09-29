@@ -38,13 +38,13 @@ public class NodeService {
         node.setDetail(nodeToSave.getDetail());
         node.setDescription(nodeToSave.getDescription());
         node.setCode(nodeToSave.getCode());
-        node.setHasBabies(hasBaby(node));
+        node.setHasChildren(hasChildren(node));
 
         if (nodeDTO.getParentId() != null) {
             parent = nodeRepository.findById(nodeDTO.getParentId()).orElseThrow(ParentIdNotFoundException::new);
 
-            parent.getBabies().add(node);
-            parent.setHasBabies(hasBaby(parent));
+            parent.getChildren().add(node);
+            parent.setHasChildren(hasChildren(parent));
             node.setParentId(nodeToSave.getParentId());
             responseId = nodeRepository.save(node).getId();
             nodeRepository.save(parent);
@@ -60,7 +60,7 @@ public class NodeService {
 
         if (nodeDTO.getParentId() != null) {
 
-            removeBabyFromExParent(nodeToUpdate);
+            removeChildrenFromExParent(nodeToUpdate);
             nodeToUpdate.setCode(nodeDTO.getCode());
             nodeToUpdate.setDescription(nodeDTO.getDescription());
             nodeToUpdate.setDetail(nodeDTO.getDetail());
@@ -77,29 +77,29 @@ public class NodeService {
             throw new FatherCantBecomeSonOfHimself("Father can't become son of himself");
         }
         nodeRepository.findById(nodeDTO.getParentId()).ifPresent(parent -> {
-            parent.getBabies().add(nodeToUpdate);
-            parent.setHasBabies(hasBaby(parent));
+            parent.getChildren().add(nodeToUpdate);
+            parent.setHasChildren(hasChildren(parent));
             nodeToUpdate.setParentId(nodeDTO.getParentId());
             nodeRepository.save(nodeToUpdate);
             nodeRepository.save(parent);
         });
     }
 
-    private void removeBabyFromExParent(Node nodeToUpdate) throws FatherCantBecomeSonOfHimself {
+    private void removeChildrenFromExParent(Node nodeToUpdate) throws FatherCantBecomeSonOfHimself {
         if (isSameParent(nodeToUpdate)) {
             throw new FatherCantBecomeSonOfHimself("Father can't become son of himself");
         }
         nodeRepository.findById(nodeToUpdate.getParentId()).ifPresent(oldparent -> {
-            oldparent.getBabies().remove(nodeToUpdate);
+            oldparent.getChildren().remove(nodeToUpdate);
             nodeRepository.save(oldparent);
         });
     }
 
     private boolean isSameParent(Node nodeToUpdate) {
-        return nodeToUpdate.getBabies().stream().anyMatch(node -> node.getParentId().equals(nodeToUpdate.getId()));
+        return nodeToUpdate.getChildren().stream().anyMatch(node -> node.getParentId().equals(nodeToUpdate.getId()));
     }
 
-    private boolean hasBaby(Node node) {
-        return node.getBabies() != null;
+    private boolean hasChildren(Node node) {
+        return node.getChildren() != null;
     }
 }

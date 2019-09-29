@@ -24,7 +24,7 @@ public class Node {
     public Long parentId;
 
     @OneToMany
-    private List<Node> babies;
+    private List<Node> children;
 
     @Size(max = 50)
     private String code;
@@ -35,7 +35,7 @@ public class Node {
     @Size(max = 255)
     private String detail;
 
-    private Boolean hasBabies;
+    private Boolean hasChildren;
 
     public Node(Long parentId, String code, String description, String detail) {
         this.code = code;
@@ -45,6 +45,6 @@ public class Node {
     }
 
     public GetNodeDTO convertNodeToDTO() {
-        return new GetNodeDTO(id, parentId, code, description, detail, babies);
+        return new GetNodeDTO(id, parentId, code, description, detail, children);
     }
 }
