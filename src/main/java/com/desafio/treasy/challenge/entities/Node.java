@@ -2,10 +2,7 @@ package com.desafio.treasy.challenge.entities;
 
 import com.desafio.treasy.challenge.dtos.ChildrenDTO;
 import com.desafio.treasy.challenge.dtos.GetNodeDTO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -16,6 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Node {
 
     @Id

@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/node")
@@ -31,8 +32,11 @@ public class NodeController {
     }
 
     @PostMapping
-    public NodeIdDTO save(@RequestBody NodeDTO nodeDTO) throws ParentIdNotFoundException {
-        return nodeService.save(nodeDTO.convertDTOtoNode(), nodeDTO);
+    public NodeIdDTO save(@RequestParam String code,
+                          @RequestParam String description,
+                          @RequestParam(required = false) Optional<Long> parentId,
+                          @RequestParam String detail) throws ParentIdNotFoundException {
+        return nodeService.save(code, description, parentId, detail);
     }
 
     @PutMapping("/{id}")

@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,22 +33,21 @@ public class NodeService {
         return listNode.stream().map(Node::convertNodeChildToDTO).collect(Collectors.toList());
     }
 
-    public NodeIdDTO save(Node nodeToSave, NodeDTO nodeDTO) {
-        Node node = new Node();
+    public NodeIdDTO save(String code, String description, Optional<Long> parentId, String detail) {
         Long responseId;
         Node parent;
+        Node node = Node.builder()
+                .code(code)
+                .description(description)
+                .parentId(parentId.orElse(null))
+                .detail(detail)
+                .build();
 
-        node.setDetail(nodeToSave.getDetail());
-        node.setDescription(nodeToSave.getDescription());
-        node.setCode(nodeToSave.getCode());
-        node.setHasChildren(hasChildren(node));
-
-        if (nodeDTO.getParentId() != null) {
-            parent = nodeRepository.findById(nodeDTO.getParentId()).orElseThrow(ParentIdNotFoundException::new);
-
+        if (node.getParentId() != null) {
+            parent = nodeRepository.findById(node.getParentId()).orElseThrow(ParentIdNotFoundException::new);
             parent.getChildren().add(node);
             parent.setHasChildren(hasChildren(parent));
-            node.setParentId(nodeToSave.getParentId());
+            node.setHasChildren(hasChildren(node));
             responseId = nodeRepository.save(node).getId();
             nodeRepository.save(parent);
 
@@ -82,15 +82,25 @@ public class NodeService {
 
     public NodeIdDTO delete(Long id) throws IdNotFoundException {
         Node nodeToDelete = nodeRepository.findById(id).orElseThrow(IdNotFoundException::new);
-        List<Node> children = nodeRepository.findAllByParentId(id).orElseThrow(ParentIdNotFoundException::new);
+        List<Node> children = nodeRepository.findAllByParentId(nodeToDelete.getId()).orElse(null);
+
+        if (nodeToDelete.getParentId() != null) {
+            Node parent = nodeRepository.findById(nodeToDelete.getParentId()).orElse(null);
+            if (parent.getChildren().contains(nodeToDelete)) {
+                parent.getChildren().remove(nodeToDelete);
+                nodeRepository.saveAndFlush(parent);
+            }
+        }
 
         if (hasChildren(nodeToDelete)) {
             nodeToDelete.getChildren().removeAll(children);
-            nodeRepository.save(nodeToDelete);
+            nodeRepository.saveAndFlush(nodeToDelete);
         }
-        children.forEach(child -> nodeRepository.delete(child));
-        nodeRepository.delete(nodeToDelete);
 
+        if (children != null)
+            children.forEach(child -> nodeRepository.delete(child));
+
+        nodeRepository.delete(nodeToDelete);
         return new NodeIdDTO(id);
     }
 
@@ -108,10 +118,10 @@ public class NodeService {
     }
 
     private void removeChildrenFromExParent(Node nodeToUpdate) {
-        nodeRepository.findById(nodeToUpdate.getParentId()).ifPresent(oldparent -> {
-            oldparent.getChildren().remove(nodeToUpdate);
-            nodeRepository.save(oldparent);
-        });
+        if (nodeToUpdate.getParentId() != null)
+            nodeRepository.findById(nodeToUpdate.getParentId()).map(oldparent ->
+                    oldparent.getChildren().remove(nodeToUpdate));
+        nodeRepository.save(nodeToUpdate);
     }
 
     private boolean isSameParent(Node nodeToUpdate) {
@@ -119,7 +129,7 @@ public class NodeService {
     }
 
     private boolean hasChildren(Node node) {
-        return node.getChildren() != null;
+        return node.getChildren() != null && !node.getChildren().isEmpty();
     }
 
 }

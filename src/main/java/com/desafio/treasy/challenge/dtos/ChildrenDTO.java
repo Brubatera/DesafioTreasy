@@ -1,6 +1,5 @@
 package com.desafio.treasy.challenge.dtos;
 
-import com.desafio.treasy.challenge.entities.Node;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ChildrenDTO extends Node {
+public class ChildrenDTO {
 
     private Long id;
     private String code;
